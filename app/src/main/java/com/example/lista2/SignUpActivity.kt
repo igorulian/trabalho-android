@@ -19,7 +19,6 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
-        // Inicializando os componentes
         nameEditText = findViewById(R.id.nameEditText)
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
@@ -28,7 +27,6 @@ class SignUpActivity : AppCompatActivity() {
 
         signUpButton.setOnClickListener {
             if (validateInput()) {
-                // Lógica de cadastro após validação bem-sucedida
                 Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -42,13 +40,11 @@ class SignUpActivity : AppCompatActivity() {
         val password = passwordEditText.text.toString()
         val confirmPassword = confirmPasswordEditText.text.toString()
 
-        // Validação do nome
         if (name.isEmpty()) {
             nameEditText.error = "Nome é obrigatório"
             return false
         }
 
-        // Validação do email
         if (email.isEmpty()) {
             emailEditText.error = "Email é obrigatório"
             return false
@@ -57,7 +53,6 @@ class SignUpActivity : AppCompatActivity() {
             return false
         }
 
-        // Validação da senha
         if (password.isEmpty()) {
             passwordEditText.error = "Senha é obrigatória"
             return false
@@ -66,7 +61,6 @@ class SignUpActivity : AppCompatActivity() {
             return false
         }
 
-        // Validação da confirmação da senha
         if (confirmPassword.isEmpty()) {
             confirmPasswordEditText.error = "Confirmação de senha é obrigatória"
             return false

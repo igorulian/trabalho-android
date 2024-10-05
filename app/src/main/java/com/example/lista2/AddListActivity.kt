@@ -39,7 +39,6 @@ class AddListActivity : AppCompatActivity() {
             startActivityForResult(intent, 1000)
         }
 
-        // Check if editing
         isEditing = intent.getBooleanExtra("is_editing", false)
         if (isEditing) {
             listNameEditText.setText(intent.getStringExtra("item_name"))

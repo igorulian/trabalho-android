@@ -32,7 +32,6 @@ class AddItemActivity : AppCompatActivity() {
         val categorySpinner: Spinner = findViewById(R.id.category_spinner)
         val addButton: Button = findViewById(R.id.add_button)
 
-        // Configurando os spinners
         ArrayAdapter.createFromResource(
             this,
             R.array.units_array,
@@ -51,7 +50,6 @@ class AddItemActivity : AppCompatActivity() {
             categorySpinner.adapter = adapter
         }
 
-        // Verificar se é uma edição
         isEditing = intent.getBooleanExtra("is_editing", false)
         if (isEditing) {
             val itemName = intent.getStringExtra("item_name")
@@ -61,13 +59,11 @@ class AddItemActivity : AppCompatActivity() {
 
             originalItemName = itemName
 
-            // Preencher os campos com os dados do item
             itemNameEditText.setText(itemName)
             quantityEditText.setText(itemQuantity.toString())
             unitSpinner.setSelection(resources.getStringArray(R.array.units_array).indexOf(itemUnit))
             categorySpinner.setSelection(resources.getStringArray(R.array.category_array).indexOf(itemCategory))
 
-            // Alterar o texto do botão para "Salvar"
             addButton.text = "Salvar"
         }
 
@@ -98,25 +94,21 @@ class AddItemActivity : AppCompatActivity() {
     ): Boolean {
         var isValid = true
 
-        // Validação do nome do item
         if (itemName.isEmpty()) {
             itemNameEditText.error = "O nome do item é obrigatório"
             isValid = false
         }
 
-        // Validação da quantidade
         if (quantity == null || quantity <= 0) {
             quantityEditText.error = "Insira uma quantidade válida maior que zero"
             isValid = false
         }
 
-        // Validação do spinner de unidade
         if (unit.isEmpty() || unit == "Selecione a unidade") {
             Toast.makeText(this, "Selecione uma unidade válida", Toast.LENGTH_SHORT).show()
             isValid = false
         }
 
-        // Validação do spinner de categoria
         if (category.isEmpty() || category == "Selecione a categoria") {
             Toast.makeText(this, "Selecione uma categoria válida", Toast.LENGTH_SHORT).show()
             isValid = false

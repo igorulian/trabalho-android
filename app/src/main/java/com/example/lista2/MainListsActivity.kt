@@ -27,7 +27,6 @@ class MainListsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_lists)
 
-        // Configurando a Toolbar
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -37,23 +36,21 @@ class MainListsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Recuperar itens salvos no SharedPreferences
         items = getSavedItems()
         filteredItems = items.toMutableList()
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Configurar o adaptador com os listeners de clique
         adapter = ListAdapter(this, filteredItems,
-            { item -> // itemClickListener
+            { item ->
                 val intent = Intent(this@MainListsActivity, ListItemsActivity::class.java)
                 intent.putExtra("item_id", item.id.toString())
                 intent.putExtra("item_name", item.name)
                 intent.putExtra("item_image_uri", item.imageUri)
                 startActivity(intent)
             },
-            { item -> // editClickListener
+            { item ->
                 val intent = Intent(this@MainListsActivity, AddListActivity::class.java)
                 intent.putExtra("item_id", item.id.toString())
                 intent.putExtra("item_name", item.name)
@@ -73,7 +70,6 @@ class MainListsActivity : AppCompatActivity() {
             updateItem(editedItem)
         }
 
-        // Configurar a busca
         val searchEditText = findViewById<EditText>(R.id.searchEditText)
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -85,7 +81,6 @@ class MainListsActivity : AppCompatActivity() {
         })
     }
 
-    // Método para filtrar a lista
     private fun filterList(query: String) {
         filteredItems.clear()
         if (query.isEmpty()) {
@@ -98,13 +93,11 @@ class MainListsActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    // Inflando o menu na Toolbar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
-    // Tratando o clique no item de menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_logout -> {
@@ -115,7 +108,6 @@ class MainListsActivity : AppCompatActivity() {
         }
     }
 
-    // Função de logout
     private fun logout() {
         val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
@@ -126,7 +118,6 @@ class MainListsActivity : AppCompatActivity() {
         finish()
     }
 
-    // Recuperar itens salvos no SharedPreferences
     private fun getSavedItems(): MutableList<ListItem> {
         val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
         val jsonArrayString = sharedPreferences.getString("items", "[]")
@@ -142,7 +133,6 @@ class MainListsActivity : AppCompatActivity() {
         return itemList
     }
 
-    // Salvar itens no SharedPreferences
     fun saveItems() {
         val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -158,14 +148,12 @@ class MainListsActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    // Adicionar um novo item
     fun addItem(item: ListItem) {
         items.add(item)
         filterList("")
         saveItems()
     }
 
-    // Atualizar um item existente
     fun updateItem(item: ListItem) {
         val index = items.indexOfFirst { it.id == item.id }
         if (index != -1) {
@@ -175,7 +163,6 @@ class MainListsActivity : AppCompatActivity() {
         }
     }
 
-    // Remover um item
     fun removeItem(item: ListItem) {
         items.remove(item)
         filterList("")

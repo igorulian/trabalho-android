@@ -22,7 +22,6 @@ class ListItemsActivity : AppCompatActivity() {
     private lateinit var listName: String
     private val sharedPrefsKey = "shared_prefs_items"
 
-    // Variável para armazenar o nome original do item que está sendo editado
     private var originalItemName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,20 +35,16 @@ class ListItemsActivity : AppCompatActivity() {
         listName = intent.getStringExtra("item_name") ?: "Default List"
         toolbar.title = listName
 
-        // Carregar os itens da lista específica
         itemList = loadItems(listName)
         filteredItemList = itemList.toMutableList()
 
-        // Inicializar o adaptador
         itemAdapter = ItemAdapter(filteredItemList, { position ->
-            // Clique em "Excluir"
             val item = filteredItemList[position]
             itemList.remove(item)
             filteredItemList.removeAt(position)
             itemAdapter.notifyItemRemoved(position)
             saveItems(listName)
         }, { item ->
-            // Clique em "Editar"
             originalItemName = item.name // Armazena o nome original do item antes de editar
             val intent = Intent(this, AddItemActivity::class.java)
             intent.putExtra("item_name", item.name)

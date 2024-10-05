@@ -48,17 +48,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             holder.itemImageView.setImageURI(Uri.parse(item.getImageUri()));
         }
 
-        // Clique no item para visualizar detalhes
         holder.itemView.setOnClickListener(v -> itemClickListener.onItemClick(item));
 
-        // Clique no botão "Excluir"
         holder.deleteButton.setOnClickListener(v -> {
             if (context instanceof MainListsActivity) {
                 ((MainListsActivity) context).removeItem(item);
             }
         });
 
-        // Clique no botão "Editar"
         holder.editButton.setOnClickListener(v -> editClickListener.onEditClick(item));
     }
 

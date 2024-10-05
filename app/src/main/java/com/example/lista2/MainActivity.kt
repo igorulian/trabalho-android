@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             if (validateInput()) {
-                // Lógica de login após validação bem-sucedida
                 Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, MainListsActivity::class.java)
                 startActivity(intent)
@@ -43,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         val email = emailEditText.text.toString().trim()
         val password = passwordEditText.text.toString()
 
-        // Validação do email
         if (email.isEmpty()) {
             emailEditText.error = "Email é obrigatório"
             return false
@@ -52,7 +50,6 @@ class MainActivity : AppCompatActivity() {
             return false
         }
 
-        // Validação da senha
         if (password.isEmpty()) {
             passwordEditText.error = "Senha é obrigatória"
             return false

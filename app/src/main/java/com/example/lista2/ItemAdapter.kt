@@ -34,12 +34,10 @@ class ItemAdapter(
         fun bind(item: Item, onDeleteClick: (Int) -> Unit, onEditClick: (Item) -> Unit) {
             itemName.text = "${item.name} - ${item.quantity} ${item.unit} - ${item.category}"
 
-            // Clique no botão "Excluir"
             deleteButton.setOnClickListener {
                 onDeleteClick(adapterPosition)
             }
 
-            // Clique no botão "Editar"
             editButton.setOnClickListener {
                 onEditClick(item)
             }
