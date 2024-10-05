@@ -14,11 +14,18 @@
         android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="216dp"
+        android:layout_height="157dp"
+        android:layout_gravity="center"
+        android:contentDescription="Logo"
+        android:src="@mipmap/ic_banner" />
 
     <EditText
         android:id="@+id/emailEditText"

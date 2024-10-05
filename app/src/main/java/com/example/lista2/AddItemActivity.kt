@@ -7,10 +7,14 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 
 class AddItemActivity : AppCompatActivity() {
+    private var isEditing = false
+    private var originalItemName: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
@@ -22,9 +26,13 @@ class AddItemActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-
-        // Set up the unit spinner
+        val itemNameEditText = findViewById<EditText>(R.id.item_name)
+        val quantityEditText = findViewById<EditText>(R.id.quantity)
         val unitSpinner: Spinner = findViewById(R.id.unit_spinner)
+        val categorySpinner: Spinner = findViewById(R.id.category_spinner)
+        val addButton: Button = findViewById(R.id.add_button)
+
+        // Configurando os spinners
         ArrayAdapter.createFromResource(
             this,
             R.array.units_array,
@@ -34,8 +42,6 @@ class AddItemActivity : AppCompatActivity() {
             unitSpinner.adapter = adapter
         }
 
-        // Set up the category spinner
-        val categorySpinner: Spinner = findViewById(R.id.category_spinner)
         ArrayAdapter.createFromResource(
             this,
             R.array.category_array,
@@ -45,19 +51,77 @@ class AddItemActivity : AppCompatActivity() {
             categorySpinner.adapter = adapter
         }
 
-        val addButton: Button = findViewById(R.id.add_button)
+        // Verificar se é uma edição
+        isEditing = intent.getBooleanExtra("is_editing", false)
+        if (isEditing) {
+            val itemName = intent.getStringExtra("item_name")
+            val itemQuantity = intent.getIntExtra("item_quantity", 0)
+            val itemUnit = intent.getStringExtra("item_unit")
+            val itemCategory = intent.getStringExtra("item_category")
+
+            originalItemName = itemName
+
+            // Preencher os campos com os dados do item
+            itemNameEditText.setText(itemName)
+            quantityEditText.setText(itemQuantity.toString())
+            unitSpinner.setSelection(resources.getStringArray(R.array.units_array).indexOf(itemUnit))
+            categorySpinner.setSelection(resources.getStringArray(R.array.category_array).indexOf(itemCategory))
+
+            // Alterar o texto do botão para "Salvar"
+            addButton.text = "Salvar"
+        }
+
         addButton.setOnClickListener {
-            val itemName = findViewById<EditText>(R.id.item_name).text.toString()
-            val quantity = findViewById<EditText>(R.id.quantity).text.toString().toIntOrNull() ?: 0
+            val itemName = itemNameEditText.text.toString().trim()
+            val quantity = quantityEditText.text.toString().toIntOrNull()
             val unit = unitSpinner.selectedItem.toString()
             val category = categorySpinner.selectedItem.toString()
 
-            val newItem = Item(itemName, quantity, unit, category)
-            val resultIntent = Intent().apply {
-                putExtra("new_item", newItem)
+            if (validateInputs(itemNameEditText, quantityEditText, itemName, quantity, unit, category)) {
+                val newItem = Item(itemName, quantity!!, unit, category)
+                val resultIntent = Intent().apply {
+                    putExtra(if (isEditing) "edited_item" else "new_item", newItem)
+                }
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
             }
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
         }
+    }
+
+    private fun validateInputs(
+        itemNameEditText: EditText,
+        quantityEditText: EditText,
+        itemName: String,
+        quantity: Int?,
+        unit: String,
+        category: String
+    ): Boolean {
+        var isValid = true
+
+        // Validação do nome do item
+        if (itemName.isEmpty()) {
+            itemNameEditText.error = "O nome do item é obrigatório"
+            isValid = false
+        }
+
+        // Validação da quantidade
+        if (quantity == null || quantity <= 0) {
+            quantityEditText.error = "Insira uma quantidade válida maior que zero"
+            isValid = false
+        }
+
+        // Validação do spinner de unidade
+        if (unit.isEmpty() || unit == "Selecione a unidade") {
+            Toast.makeText(this, "Selecione uma unidade válida", Toast.LENGTH_SHORT).show()
+            isValid = false
+        }
+
+        // Validação do spinner de categoria
+        if (category.isEmpty() || category == "Selecione a categoria") {
+            Toast.makeText(this, "Selecione uma categoria válida", Toast.LENGTH_SHORT).show()
+            isValid = false
+        }
+
+        return isValid
     }
 }

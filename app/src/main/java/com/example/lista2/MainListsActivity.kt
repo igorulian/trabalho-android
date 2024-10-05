@@ -3,11 +3,15 @@ package com.example.lista2
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Parcelable
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.widget.EditText
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONArray
 import org.json.JSONObject
@@ -17,10 +21,15 @@ class MainListsActivity : AppCompatActivity() {
 
     private lateinit var items: MutableList<ListItem>
     private lateinit var adapter: ListAdapter
+    private lateinit var filteredItems: MutableList<ListItem>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_lists)
+
+        // Configurando a Toolbar
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         val addListFab: FloatingActionButton = findViewById(R.id.addListFab)
         addListFab.setOnClickListener {
@@ -30,26 +39,94 @@ class MainListsActivity : AppCompatActivity() {
 
         // Recuperar itens salvos no SharedPreferences
         items = getSavedItems()
+        filteredItems = items.toMutableList()
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = ListAdapter(this, items) { item ->
-            val intent = Intent(this@MainListsActivity, ListItemsActivity::class.java)
-            intent.putExtra("item_id", item.id.toString())
-            intent.putExtra("item_name", item.name)
-            intent.putExtra("item_image_uri", item.imageUri)
-            startActivity(intent)
-        }
+        // Configurar o adaptador com os listeners de clique
+        adapter = ListAdapter(this, filteredItems,
+            { item -> // itemClickListener
+                val intent = Intent(this@MainListsActivity, ListItemsActivity::class.java)
+                intent.putExtra("item_id", item.id.toString())
+                intent.putExtra("item_name", item.name)
+                intent.putExtra("item_image_uri", item.imageUri)
+                startActivity(intent)
+            },
+            { item -> // editClickListener
+                val intent = Intent(this@MainListsActivity, AddListActivity::class.java)
+                intent.putExtra("item_id", item.id.toString())
+                intent.putExtra("item_name", item.name)
+                intent.putExtra("item_image_uri", item.imageUri)
+                intent.putExtra("is_editing", true)
+                startActivity(intent)
+            }
+        )
 
         recyclerView.adapter = adapter
 
         val newItem: ListItem? = intent.getParcelableExtra("new_item")
+        val editedItem: ListItem? = intent.getParcelableExtra("edited_item")
         if (newItem != null) {
             addItem(newItem)
+        } else if (editedItem != null) {
+            updateItem(editedItem)
+        }
+
+        // Configurar a busca
+        val searchEditText = findViewById<EditText>(R.id.searchEditText)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                filterList(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+    }
+
+    // Método para filtrar a lista
+    private fun filterList(query: String) {
+        filteredItems.clear()
+        if (query.isEmpty()) {
+            filteredItems.addAll(items)
+        } else {
+            filteredItems.addAll(items.filter {
+                it.name.contains(query, ignoreCase = true)
+            })
+        }
+        adapter.notifyDataSetChanged()
+    }
+
+    // Inflando o menu na Toolbar
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    // Tratando o clique no item de menu
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                logout()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
+    // Função de logout
+    private fun logout() {
+        val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().apply()
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    // Recuperar itens salvos no SharedPreferences
     private fun getSavedItems(): MutableList<ListItem> {
         val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
         val jsonArrayString = sharedPreferences.getString("items", "[]")
@@ -65,6 +142,7 @@ class MainListsActivity : AppCompatActivity() {
         return itemList
     }
 
+    // Salvar itens no SharedPreferences
     fun saveItems() {
         val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -80,15 +158,27 @@ class MainListsActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Adicionar um novo item
     fun addItem(item: ListItem) {
         items.add(item)
-        adapter.notifyDataSetChanged()
+        filterList("")
         saveItems()
     }
 
+    // Atualizar um item existente
+    fun updateItem(item: ListItem) {
+        val index = items.indexOfFirst { it.id == item.id }
+        if (index != -1) {
+            items[index] = item
+            filterList("")
+            saveItems()
+        }
+    }
+
+    // Remover um item
     fun removeItem(item: ListItem) {
         items.remove(item)
-        adapter.notifyDataSetChanged()
+        filterList("")
         saveItems()
     }
 }
