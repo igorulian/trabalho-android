@@ -1,4 +1,4 @@
-package com.example.lista2
+package br.com.cardapio
 
 import android.os.Parcel
 import android.os.Parcelable

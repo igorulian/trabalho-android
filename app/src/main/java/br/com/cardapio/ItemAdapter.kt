@@ -1,4 +1,4 @@
-package com.example.lista2
+package br.com.cardapio
 
 import android.view.LayoutInflater
 import android.view.View

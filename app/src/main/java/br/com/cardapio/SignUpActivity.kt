@@ -1,4 +1,4 @@
-package com.example.lista2
+package br.com.cardapio
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class SignUpActivity : AppCompatActivity() {
     private lateinit var nameEditText: EditText
@@ -15,10 +17,14 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var confirmPasswordEditText: EditText
     private lateinit var signUpButton: Button
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
+
+        // Firebase Auth instance
+        auth = FirebaseAuth.getInstance()
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -34,9 +40,11 @@ class SignUpActivity : AppCompatActivity() {
 
         signUpButton.setOnClickListener {
             if (validateInput()) {
-                Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                val name = nameEditText.text.toString().trim()
+                val email = emailEditText.text.toString().trim()
+                val password = passwordEditText.text.toString()
+
+                createAccount(name, email, password)
             }
         }
     }
@@ -77,5 +85,51 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    private fun createAccount(name: String, email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Account created successfully
+                    val user = auth.currentUser
+
+                    // Update display name for the user
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .build()
+
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                Toast.makeText(
+                                    this,
+                                    "Conta criada com sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navigateToLogin()
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    "Erro ao salvar nome de usuário: ${updateTask.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                } else {
+                    // Account creation failed
+                    Toast.makeText(
+                        this,
+                        "Erro ao criar conta: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish() // Prevent returning to signup screen
     }
 }

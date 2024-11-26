@@ -1,4 +1,4 @@
-package com.example.lista2
+package br.com.cardapio
 
 import android.content.Context
 import android.content.Intent

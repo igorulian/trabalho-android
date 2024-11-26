@@ -1,4 +1,4 @@
-package com.example.lista2
+package br.com.cardapio
 
 import org.junit.Test
 
