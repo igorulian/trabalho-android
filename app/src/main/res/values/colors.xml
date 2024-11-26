@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#D84315</color> <!-- Laranja Escuro Principal -->
+    <color name="primary_variant">#BF360C</color> <!-- Variante Escura -->
+    <color name="primary_dark">#8E2600</color> <!-- Mais Escuro -->
+
+    <color name="secondary">#FF7043</color> <!-- Complemento Vibrante -->
+    <color name="secondary_variant">#FF5722</color> <!-- Variante Secundária -->
+    <color name="secondary_dark">#E64A19</color> <!-- Secundário mais Escuro -->
+
+    <!-- Cores Complementares -->
+    <color name="background">#FBE9E7</color> <!-- Fundo Laranja Claro -->
+    <color name="surface">#FFCCBC</color> <!-- Superfície Suave -->
+    <color name="on_primary">#FFFFFF</color> <!-- Texto Branco no Laranja -->
+    <color name="on_secondary">#FFFFFF</color> <!-- Texto Branco no Secundário -->
+    <color name="on_background">#000000</color> <!-- Texto Preto no Fundo -->
+    <color name="on_surface">#000000</color> <!-- Texto Preto nas Superfícies -->
 </resources>

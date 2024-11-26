@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
+import com.google.firebase.auth.FirebaseAuth
 
 class MainListsActivity : AppCompatActivity() {
 
@@ -109,9 +110,14 @@ class MainListsActivity : AppCompatActivity() {
     }
 
     private fun logout() {
+        // Desloga o usuário do Firebase
+        FirebaseAuth.getInstance().signOut()
+
+        // Limpa as preferências locais
         val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
 
+        // Redireciona para a tela de login
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
