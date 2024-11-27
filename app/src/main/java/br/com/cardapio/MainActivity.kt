@@ -14,19 +14,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var passwordEditText: EditText
     private lateinit var loginButton: Button
     private lateinit var createAccountButton: Button
+    private lateinit var resetPasswordButton: Button
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize Firebase Auth
+        // Inicializa FirebaseAuth
         auth = FirebaseAuth.getInstance()
 
         emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
         createAccountButton = findViewById(R.id.createAccountButton)
+        resetPasswordButton = findViewById(R.id.resetPasswordButton)
 
         loginButton.setOnClickListener {
             if (validateInput()) {
@@ -39,6 +41,15 @@ class MainActivity : AppCompatActivity() {
         createAccountButton.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
+        }
+
+        resetPasswordButton.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailEditText.error = "Digite um email válido para recuperação"
+            } else {
+                resetPassword(email)
+            }
         }
     }
 
@@ -66,14 +77,23 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Login successful
                     Toast.makeText(this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, MainListsActivity::class.java)
+                    val intent = Intent(this, ListProductsActivity::class.java)
                     startActivity(intent)
-                    finish() // Prevent going back to login screen
+                    finish()
                 } else {
-                    // Login failed
                     Toast.makeText(this, "Erro ao fazer login: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun resetPassword(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Email de recuperação enviado para $email", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Erro ao enviar email de recuperação: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }

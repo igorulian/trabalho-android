@@ -16,7 +16,7 @@
             android:name=".AddItemActivity"
             android:exported="false" />
         <activity
-            android:name=".ListItemsActivity"
+            android:name=".ListProductsActivity"
             android:exported="false" />
         <activity
             android:name=".AddListActivity"

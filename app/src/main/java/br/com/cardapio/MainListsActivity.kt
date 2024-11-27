@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,8 +32,8 @@ class MainListsActivity : AppCompatActivity() {
 
         val addListFab: FloatingActionButton = findViewById(R.id.addListFab)
         addListFab.setOnClickListener {
-            val intent = Intent(this, AddListActivity::class.java)
-            startActivity(intent)
+//            val intent = Intent(this, AddListActivity::class.java)
+//            startActivity(intent)
         }
 
         items = getSavedItems()
@@ -45,19 +44,19 @@ class MainListsActivity : AppCompatActivity() {
 
         adapter = ListAdapter(this, filteredItems,
             { item ->
-                val intent = Intent(this@MainListsActivity, ListItemsActivity::class.java)
+                val intent = Intent(this@MainListsActivity, ListProductsActivity::class.java)
                 intent.putExtra("item_id", item.id.toString())
                 intent.putExtra("item_name", item.name)
                 intent.putExtra("item_image_uri", item.imageUri)
                 startActivity(intent)
             },
             { item ->
-                val intent = Intent(this@MainListsActivity, AddListActivity::class.java)
-                intent.putExtra("item_id", item.id.toString())
-                intent.putExtra("item_name", item.name)
-                intent.putExtra("item_image_uri", item.imageUri)
-                intent.putExtra("is_editing", true)
-                startActivity(intent)
+//                val intent = Intent(this@MainListsActivity, AddListActivity::class.java)
+//                intent.putExtra("item_id", item.id.toString())
+//                intent.putExtra("item_name", item.name)
+//                intent.putExtra("item_image_uri", item.imageUri)
+//                intent.putExtra("is_editing", true)
+//                startActivity(intent)
             }
         )
 
@@ -95,18 +94,8 @@ class MainListsActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_list_products, menu)
         return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                logout()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     private fun logout() {

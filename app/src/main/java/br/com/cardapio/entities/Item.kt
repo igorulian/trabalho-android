@@ -1,10 +1,9 @@
 package br.com.cardapio
 
-import java.io.Serializable
 
 data class Item(
-    val name: String,
-    val quantity: Int,
-    val unit: String,
-    val category: String
-) : Serializable
+    val name: String = "",
+    val description: String = "",
+    val picture: String = "",
+    val price: Double = 0.0
+)

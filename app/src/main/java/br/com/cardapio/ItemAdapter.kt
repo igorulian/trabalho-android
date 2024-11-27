@@ -3,44 +3,37 @@ package br.com.cardapio
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class ItemAdapter(
-    private val items: List<Item>,
-    private val onDeleteClick: (Int) -> Unit,
-    private val onEditClick: (Item) -> Unit
+    private val items: List<Item>
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
+    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val name: TextView = view.findViewById(R.id.itemName)
+        val description: TextView = view.findViewById(R.id.itemDescription)
+        val price: TextView = view.findViewById(R.id.itemPrice)
+        val picture: ImageView = view.findViewById(R.id.itemPicture)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_list_row, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_layout, parent, false)
         return ItemViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
-        holder.bind(item, onDeleteClick, onEditClick)
+        holder.name.text = item.name
+        holder.description.text = item.description
+        holder.price.text = "R$ ${item.price}"
+        Glide.with(holder.picture.context)
+            .load(item.picture)
+            .into(holder.picture)
     }
 
     override fun getItemCount(): Int = items.size
-
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val itemName: TextView = itemView.findViewById(R.id.itemNameTextView)
-        private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
-        private val editButton: ImageButton = itemView.findViewById(R.id.editButton)
-
-        fun bind(item: Item, onDeleteClick: (Int) -> Unit, onEditClick: (Item) -> Unit) {
-            itemName.text = "${item.name} - ${item.quantity} ${item.unit} - ${item.category}"
-
-            deleteButton.setOnClickListener {
-                onDeleteClick(adapterPosition)
-            }
-
-            editButton.setOnClickListener {
-                onEditClick(item)
-            }
-        }
-    }
 }
