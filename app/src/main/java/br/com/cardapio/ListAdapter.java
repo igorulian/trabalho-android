@@ -50,8 +50,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         holder.itemView.setOnClickListener(v -> itemClickListener.onItemClick(item));
 
         holder.deleteButton.setOnClickListener(v -> {
-            if (context instanceof MainListsActivity) {
-                ((MainListsActivity) context).removeItem(item);
+            if (context instanceof CartActivity) {
+                ((CartActivity) context).removeItem(item);
             }
         });
 

@@ -17,7 +17,7 @@ import org.json.JSONObject
 import java.util.UUID
 import com.google.firebase.auth.FirebaseAuth
 
-class MainListsActivity : AppCompatActivity() {
+class CartActivity : AppCompatActivity() {
 
     private lateinit var items: MutableList<ListItem>
     private lateinit var adapter: ListAdapter
@@ -25,7 +25,7 @@ class MainListsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main_lists)
+        setContentView(R.layout.activity_cart)
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -44,7 +44,7 @@ class MainListsActivity : AppCompatActivity() {
 
         adapter = ListAdapter(this, filteredItems,
             { item ->
-                val intent = Intent(this@MainListsActivity, ListProductsActivity::class.java)
+                val intent = Intent(this@CartActivity, ListProductsActivity::class.java)
                 intent.putExtra("item_id", item.id.toString())
                 intent.putExtra("item_name", item.name)
                 intent.putExtra("item_image_uri", item.imageUri)

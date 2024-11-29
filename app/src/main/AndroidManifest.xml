@@ -22,7 +22,7 @@
             android:name=".AddListActivity"
             android:exported="false" />
         <activity
-            android:name=".MainListsActivity"
+            android:name=".CartActivity"
             android:exported="false" />
         <activity
             android:name=".SignUpActivity"
