@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="white">#FFFFFF</color>
     <color name="primary">#D84315</color> <!-- Laranja Escuro Principal -->
     <color name="primary_variant">#BF360C</color> <!-- Variante Escura -->
+    <color name="primary_light">#FF7043</color> <!-- Variante Clara -->
     <color name="primary_dark">#8E2600</color> <!-- Mais Escuro -->
 
     <color name="secondary">#FF7043</color> <!-- Complemento Vibrante -->
