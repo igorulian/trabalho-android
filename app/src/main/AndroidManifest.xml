@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Cardaio"
         tools:targetApi="31">
         <activity
+            android:name=".ItemDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddItemActivity"
             android:exported="false" />
         <activity

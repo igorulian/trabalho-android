@@ -1,5 +1,6 @@
 package br.com.cardapio
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +34,15 @@ class ItemAdapter(
         Glide.with(holder.picture.context)
             .load(item.picture)
             .into(holder.picture)
+
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ItemDetailActivity::class.java)
+            intent.putExtra("item_name", item.name)
+            intent.putExtra("item_description", item.description)
+            intent.putExtra("item_price", item.price)
+            intent.putExtra("item_picture", item.picture)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = items.size
