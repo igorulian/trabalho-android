@@ -21,7 +21,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Inicializa FirebaseAuth
+
+
         auth = FirebaseAuth.getInstance()
 
         emailEditText = findViewById(R.id.emailEditText)
@@ -29,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
         createAccountButton = findViewById(R.id.createAccountButton)
         resetPasswordButton = findViewById(R.id.resetPasswordButton)
+
+        resetPasswordButton.paintFlags = resetPasswordButton.paintFlags or android.graphics.Paint.UNDERLINE_TEXT_FLAG
 
         loginButton.setOnClickListener {
             if (validateInput()) {

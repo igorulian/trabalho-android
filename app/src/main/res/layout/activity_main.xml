@@ -41,6 +41,17 @@
             android:inputType="textPassword" />
 
         <Button
+            android:id="@+id/resetPasswordButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Esqueci minha senha"
+            android:gravity="start"
+            android:background="@android:color/transparent"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:padding="8dp" />
+
+        <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,12 +62,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Criar Conta" />
-
-        <!-- Novo botão para Recuperar Senha -->
-        <Button
-            android:id="@+id/resetPasswordButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Recuperar Senha" />
     </LinearLayout>
 </LinearLayout>
