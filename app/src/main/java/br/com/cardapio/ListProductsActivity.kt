@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +22,7 @@ class ListProductsActivity : AppCompatActivity() {
 
     private lateinit var itemAdapter: ItemAdapter
     private val items = mutableListOf<Item>()
+    private val filteredItems = mutableListOf<Item>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +40,11 @@ class ListProductsActivity : AppCompatActivity() {
 
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        itemAdapter = ItemAdapter(items)
+        itemAdapter = ItemAdapter(filteredItems)
         recyclerView.adapter = itemAdapter
+
+        val categorySpinner: Spinner = findViewById(R.id.categorySpinner)
+        setupCategorySpinner(categorySpinner)
 
         fetchItemsFromFirestore()
 
@@ -64,15 +71,53 @@ class ListProductsActivity : AppCompatActivity() {
                         dbitem.name,
                         dbitem.description,
                         dbitem.picture,
-                        dbitem.price
+                        dbitem.price,
+                        dbitem.category
                     )
                     items.add(item)
                 }
-                itemAdapter.notifyDataSetChanged()
+                applyCategoryFilter("Todos")
             }
             .addOnFailureListener { exception ->
                 Log.e("ListItemsActivity", "Erro ao buscar itens: ", exception)
             }
+    }
+
+    private fun setupCategorySpinner(spinner: Spinner) {
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.category_array,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                val selectedCategory = parent?.getItemAtPosition(position).toString()
+                applyCategoryFilter(selectedCategory)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                applyCategoryFilter("Todos")
+            }
+        }
+    }
+
+    private fun applyCategoryFilter(category: String) {
+        filteredItems.clear()
+        if (category == "Todos") {
+            filteredItems.addAll(items)
+        } else {
+            val categoryKey = when (category) {
+                "Comidas" -> "food"
+                "Bebidas" -> "drinks"
+                "Doces" -> "sweet"
+                else -> ""
+            }
+            filteredItems.addAll(items.filter { it.category == categoryKey })
+        }
+        itemAdapter.notifyDataSetChanged()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
