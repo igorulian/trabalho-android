@@ -29,11 +29,9 @@ class CartActivity : AppCompatActivity() {
 
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-
-        val addListFab: FloatingActionButton = findViewById(R.id.addListFab)
-        addListFab.setOnClickListener {
-//            val intent = Intent(this, AddListActivity::class.java)
-//            startActivity(intent)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
         }
 
         items = getSavedItems()
@@ -93,10 +91,6 @@ class CartActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_list_products, menu)
-        return true
-    }
 
     private fun logout() {
         // Desloga o usuário do Firebase
