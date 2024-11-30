@@ -3,6 +3,7 @@ package br.com.cardapio
 import android.content.Context
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -37,6 +38,16 @@ class CartActivity : AppCompatActivity() {
             removeItemFromCart(itemToRemove)
         }
         recyclerView.adapter = cartAdapter
+
+        updateTotal()
+
+    }
+
+    private fun updateTotal() {
+
+        val totalTextView = findViewById<TextView>(R.id.totalTextView)
+        val total = cartItems.sumOf { it.price }
+        totalTextView.text = "Total: R$ %.2f".format(total)
     }
 
     private fun loadCartItems() {
@@ -65,7 +76,7 @@ class CartActivity : AppCompatActivity() {
 
         cartAdapter.updateItems(cartItems)
         loadCartItems()
-
+        updateTotal()
         Toast.makeText(this, "Item removido do carrinho", Toast.LENGTH_SHORT).show()
     }
 

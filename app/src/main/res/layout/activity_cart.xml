@@ -28,5 +28,15 @@
             android:layout_weight="1"
             android:padding="8dp" />
 
+        <TextView
+            android:id="@+id/totalTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:padding="16dp"
+            android:text="Total: R$ 0,00"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
     </LinearLayout>
 </LinearLayout>
