@@ -23,7 +23,6 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
-        // Firebase Auth instance
         auth = FirebaseAuth.getInstance()
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -91,10 +90,8 @@ class SignUpActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Account created successfully
                     val user = auth.currentUser
 
-                    // Update display name for the user
                     val profileUpdates = UserProfileChangeRequest.Builder()
                         .setDisplayName(name)
                         .build()
@@ -117,7 +114,6 @@ class SignUpActivity : AppCompatActivity() {
                             }
                         }
                 } else {
-                    // Account creation failed
                     Toast.makeText(
                         this,
                         "Erro ao criar conta: ${task.exception?.message}",
@@ -130,6 +126,6 @@ class SignUpActivity : AppCompatActivity() {
     private fun navigateToLogin() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish() // Prevent returning to signup screen
+        finish()
     }
 }
