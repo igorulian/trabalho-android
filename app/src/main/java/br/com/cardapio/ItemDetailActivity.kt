@@ -1,5 +1,7 @@
 package br.com.cardapio
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -8,8 +10,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class ItemDetailActivity : AppCompatActivity() {
 
@@ -24,6 +26,7 @@ class ItemDetailActivity : AppCompatActivity() {
             onBackPressed()
         }
 
+        val itemId = intent.getStringExtra("item_id")
         val itemName = intent.getStringExtra("item_name")
         val itemDescription = intent.getStringExtra("item_description")
         val itemPrice = intent.getDoubleExtra("item_price", 0.0)
@@ -40,31 +43,70 @@ class ItemDetailActivity : AppCompatActivity() {
         priceTextView.text = "R$ $itemPrice"
         Glide.with(this).load(itemPicture).into(pictureImageView)
 
+
         addToCartButton.setOnClickListener {
-            addToCart(itemName, itemPrice, itemPicture)
+
+            if (itemId.isNullOrEmpty()) {
+                showToast("Erro: ID do item inválido.")
+                return@setOnClickListener
+            }
+
+            if (itemName.isNullOrEmpty()) {
+                showToast("Erro: Nome do item inválido.")
+                return@setOnClickListener
+            }
+
+            if (itemDescription.isNullOrEmpty()) {
+                showToast("Erro: Descrição do item inválida.")
+                return@setOnClickListener
+            }
+
+            if (itemPrice < 0) {
+                showToast("Erro: Preço do item inválido.")
+                return@setOnClickListener
+            }
+
+            if (itemPicture.isNullOrEmpty()) {
+                showToast("Erro: Imagem do item inválida.")
+                return@setOnClickListener
+            }
+
+            val item = Item(
+                itemId,
+                itemName,
+                itemDescription,
+                itemPicture,
+                itemPrice
+            )
+
+            addToCart(item)
         }
     }
 
-    private fun addToCart(name: String?, price: Double, picture: String?) {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            val db = FirebaseFirestore.getInstance()
-            val cartItem = hashMapOf(
-                "name" to name,
-                "price" to price,
-                "picture" to picture,
-                "user_id" to user.uid
-            )
-            db.collection("cart")
-                .add(cartItem)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Item adicionado ao carrinho!", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao adicionar ao carrinho: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+    private fun addToCart(item: Item) {
+
+        val sharedPreferences = getSharedPreferences("cart_prefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val cartJson = sharedPreferences.getString("cart_items", null)
+        val cartItems: MutableList<Item> = if (cartJson != null) {
+            val type = object : TypeToken<MutableList<Item>>() {}.type
+            gson.fromJson(cartJson, type)
         } else {
-            Toast.makeText(this, "Usuário não autenticado!", Toast.LENGTH_SHORT).show()
+            mutableListOf()
         }
+
+        cartItems.add(item)
+        val editor = sharedPreferences.edit()
+        editor.putString("cart_items", gson.toJson(cartItems))
+        editor.apply()
+
+        showToast("Item adicionado ao carrinho!")
+
+        onBackPressed()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

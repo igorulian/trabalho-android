@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import br.com.cardapio.adapters.ItemAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -57,7 +58,14 @@ class ListProductsActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 items.clear()
                 for (document in result) {
-                    val item = document.toObject(Item::class.java)
+                    val dbitem = document.toObject(Item::class.java)
+                    val item = Item(
+                        document.id,
+                        dbitem.name,
+                        dbitem.description,
+                        dbitem.picture,
+                        dbitem.price
+                    )
                     items.add(item)
                 }
                 itemAdapter.notifyDataSetChanged()
@@ -78,14 +86,11 @@ class ListProductsActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        // Desloga o usuário do Firebase
         FirebaseAuth.getInstance().signOut()
 
-        // Limpa as preferências locais
         val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
 
-        // Redireciona para a tela de login
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

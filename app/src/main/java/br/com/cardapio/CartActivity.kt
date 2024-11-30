@@ -1,27 +1,21 @@
 package br.com.cardapio
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.Menu
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.EditText
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import org.json.JSONArray
-import org.json.JSONObject
-import java.util.UUID
-import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class CartActivity : AppCompatActivity() {
 
-    private lateinit var items: MutableList<ListItem>
-    private lateinit var adapter: ListAdapter
-    private lateinit var filteredItems: MutableList<ListItem>
+    private lateinit var cartAdapter: CartAdapter
+    private val cartItems = mutableListOf<Item>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,127 +28,45 @@ class CartActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        items = getSavedItems()
-        filteredItems = items.toMutableList()
-
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = ListAdapter(this, filteredItems,
-            { item ->
-                val intent = Intent(this@CartActivity, ListProductsActivity::class.java)
-                intent.putExtra("item_id", item.id.toString())
-                intent.putExtra("item_name", item.name)
-                intent.putExtra("item_image_uri", item.imageUri)
-                startActivity(intent)
-            },
-            { item ->
-//                val intent = Intent(this@MainListsActivity, AddListActivity::class.java)
-//                intent.putExtra("item_id", item.id.toString())
-//                intent.putExtra("item_name", item.name)
-//                intent.putExtra("item_image_uri", item.imageUri)
-//                intent.putExtra("is_editing", true)
-//                startActivity(intent)
-            }
-        )
+        loadCartItems()
 
-        recyclerView.adapter = adapter
-
-        val newItem: ListItem? = intent.getParcelableExtra("new_item")
-        val editedItem: ListItem? = intent.getParcelableExtra("edited_item")
-        if (newItem != null) {
-            addItem(newItem)
-        } else if (editedItem != null) {
-            updateItem(editedItem)
+        cartAdapter = CartAdapter(cartItems) { itemToRemove ->
+            removeItemFromCart(itemToRemove)
         }
-
-        val searchEditText = findViewById<EditText>(R.id.searchEditText)
-        searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                filterList(s.toString())
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+        recyclerView.adapter = cartAdapter
     }
 
-    private fun filterList(query: String) {
-        filteredItems.clear()
-        if (query.isEmpty()) {
-            filteredItems.addAll(items)
+    private fun loadCartItems() {
+        val sharedPreferences = getSharedPreferences("cart_prefs", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val cartJson = sharedPreferences.getString("cart_items", null)
+        if (cartJson != null) {
+            val type = object : TypeToken<MutableList<Item>>() {}.type
+            val items: MutableList<Item> = gson.fromJson(cartJson, type)
+            cartItems.clear()
+            cartItems.addAll(items)
         } else {
-            filteredItems.addAll(items.filter {
-                it.name.contains(query, ignoreCase = true)
-            })
+            Toast.makeText(this, "Carrinho está vazio", Toast.LENGTH_SHORT).show()
         }
-        adapter.notifyDataSetChanged()
     }
 
+    private fun removeItemFromCart(item: Item) {
+        cartItems.remove(item)
 
-    private fun logout() {
-        // Desloga o usuário do Firebase
-        FirebaseAuth.getInstance().signOut()
-
-        // Limpa as preferências locais
-        val sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-        sharedPreferences.edit().clear().apply()
-
-        // Redireciona para a tela de login
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
-
-    private fun getSavedItems(): MutableList<ListItem> {
-        val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
-        val jsonArrayString = sharedPreferences.getString("items", "[]")
-        val jsonArray = JSONArray(jsonArrayString)
-        val itemList = mutableListOf<ListItem>()
-        for (i in 0 until jsonArray.length()) {
-            val jsonObject = jsonArray.getJSONObject(i)
-            val id = UUID.fromString(jsonObject.getString("id"))
-            val name = jsonObject.getString("name")
-            val imageUri = jsonObject.optString("imageUri", null)
-            itemList.add(ListItem(id, name, imageUri))
-        }
-        return itemList
-    }
-
-    fun saveItems() {
-        val sharedPreferences = getSharedPreferences("list_prefs", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences("cart_prefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        val jsonArray = JSONArray()
-        for (item in items) {
-            val jsonObject = JSONObject()
-            jsonObject.put("id", item.id.toString())
-            jsonObject.put("name", item.name)
-            jsonObject.put("imageUri", item.imageUri)
-            jsonArray.put(jsonObject)
-        }
-        editor.putString("items", jsonArray.toString())
+        val gson = Gson()
+        editor.putString("cart_items", gson.toJson(cartItems))
         editor.apply()
+
+        cartAdapter.updateItems(cartItems)
+        loadCartItems()
+
+        Toast.makeText(this, "Item removido do carrinho", Toast.LENGTH_SHORT).show()
     }
 
-    fun addItem(item: ListItem) {
-        items.add(item)
-        filterList("")
-        saveItems()
-    }
-
-    fun updateItem(item: ListItem) {
-        val index = items.indexOfFirst { it.id == item.id }
-        if (index != -1) {
-            items[index] = item
-            filterList("")
-            saveItems()
-        }
-    }
-
-    fun removeItem(item: ListItem) {
-        items.remove(item)
-        filterList("")
-        saveItems()
-    }
 }

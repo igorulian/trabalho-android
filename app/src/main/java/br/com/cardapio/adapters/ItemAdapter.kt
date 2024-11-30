@@ -1,4 +1,4 @@
-package br.com.cardapio
+package br.com.cardapio.adapters
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import br.com.cardapio.Item
+import br.com.cardapio.ItemDetailActivity
+import br.com.cardapio.R
 import com.bumptech.glide.Glide
 
 class ItemAdapter(
@@ -37,6 +40,7 @@ class ItemAdapter(
 
         holder.itemView.setOnClickListener {
             val intent = Intent(holder.itemView.context, ItemDetailActivity::class.java)
+            intent.putExtra("item_id", item.id)
             intent.putExtra("item_name", item.name)
             intent.putExtra("item_description", item.description)
             intent.putExtra("item_price", item.price)
